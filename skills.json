@@ -1,0 +1,34 @@
+{
+  "name": "sentinel-skills",
+  "version": "0.1.0",
+  "description": "Defensive security playbooks for coding agents",
+  "author": "mgkvibez",
+  "license": "MIT",
+  "skills": [
+    {
+      "name": "threat-model",
+      "path": "skills/threat-model/SKILL.md",
+      "summary": "Build a threat model from the code that exists, ranked by reachability."
+    },
+    {
+      "name": "triage-alert",
+      "path": "skills/triage-alert/SKILL.md",
+      "summary": "Turn a scanner finding or CVE alert into patch, defer, mitigate, or dismiss."
+    },
+    {
+      "name": "review-diff-for-vulns",
+      "path": "skills/review-diff-for-vulns/SKILL.md",
+      "summary": "Security-review a pull request diff for reachable vulnerabilities before merge."
+    },
+    {
+      "name": "cve-research",
+      "path": "skills/cve-research/SKILL.md",
+      "summary": "Establish what a CVE does and whether a specific codebase is exposed to it."
+    },
+    {
+      "name": "harden-service",
+      "path": "skills/harden-service/SKILL.md",
+      "summary": "Reduce exposed surface and verify deployment controls before going public."
+    }
+  ]
+}
