@@ -1,29 +1,47 @@
 # Contributing
 
+A skill is a procedure a tired agent can follow at 2am. Optimise for that.
+
 ## Adding a skill
 
-1. Create `skills/<kebab-name>/SKILL.md`.
-2. Frontmatter must contain `name` (matching the folder) and `description` (40-1024 chars, written so an
-   agent can decide *when* to load the skill from the description alone).
-3. Required sections: `## When to use`, a numbered procedure with a `*Done when:*` criterion per step,
-   `## Output format`, `## Rules`, `## Anti-patterns`.
-4. Add the skill to `skills.json`.
-5. Run `python3 scripts/validate_skills.py` and make it pass.
+1. `mkdir skills/<skill-name>` (lowercase, hyphenated).
+2. Add `SKILL.md` with frontmatter:
 
-## What we accept
+```markdown
+---
+name: skill-name
+description: One sentence on when to use this, written for an agent routing on intent.
+---
 
-- Defensive security work: prevention, detection, triage, review, hardening.
-- Procedures that end in verifiable state, not advice.
-- Anything where the agent must cite evidence or explicitly say it could not verify.
+# Skill Name
+
+## When to use
+## Procedure
+## Rules
+## Output format
+```
+
+3. Number the procedure. Every step ends with a checkable completion criterion.
+4. Register it in `skills.json`.
+5. Run the validator until clean.
+
+## Running the tests
+
+```bash
+python3 scripts/validate_skills.py --strict
+```
+
+`--strict` is what CI runs. It fails on: missing frontmatter, name/folder mismatch, description
+under 40 or over 1024 characters, missing required sections, skills under the substance floor, and
+manifest drift.
 
 ## What we reject
 
-- Offensive tooling, exploit development, or anything aimed at systems the user does not own.
-- Generic advice with no procedure ("follow best practices").
-- Vendor-specific instructions that only work with one paid product.
+- Skills that produce a verdict without an artifact.
+- Skills that call something "safe". Say "no issues found by ruleset vN".
+- Skills that assume a specific scanner, cloud, or vendor.
+- Duplicated procedure under a new name.
 
-## Style
+## Pull requests
 
-- Second person, imperative, short sentences.
-- No emoji in skill bodies. Tables over prose for anything enumerable.
-- Never instruct an agent to print a secret; fingerprints only.
+One skill per PR, validator green, and a note on what the skill produced when you ran it.

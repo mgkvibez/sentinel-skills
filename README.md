@@ -1,8 +1,12 @@
 # sentinel-skills
 
-Defensive security playbooks for coding agents. Five skills that make an agent threat-model, triage, review, research, and harden the way a careful security engineer does, instead of guessing.
+**Five defensive security playbooks for coding agents.** Threat-model a repo, triage an alert, review a diff, research a CVE, harden a service — the way a careful security engineer does it, not the way a confident model improvises.
 
-The red team shipped their skill packs first. This is the blue team's.
+[![validate](https://github.com/mgkvibez/sentinel-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/mgkvibez/sentinel-skills/actions/workflows/validate.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![stars](https://img.shields.io/github/stars/mgkvibez/sentinel-skills?style=flat&color=yellow)](https://github.com/mgkvibez/sentinel-skills/stargazers)
+
+![sentinel-skills demo](docs/demo/sentinel-skills.svg)
 
 ## Install
 
@@ -10,69 +14,54 @@ The red team shipped their skill packs first. This is the blue team's.
 npx skills add mgkvibez/sentinel-skills
 ```
 
-Manual install: copy any folder under `skills/` into your agent's skills directory (for Claude Code, `~/.claude/skills/`).
+## Three ways to use it
+
+```bash
+# 1. Threat-model a repo before you ship it
+> use the threat-model skill on this repository
+
+# 2. Review a diff for injection, authz, and secret-handling bugs
+> review-diff-for-vulns on the staged changes
+
+# 3. Turn a scanner alert into a decision, not a panic
+> triage-alert: semgrep says "unsanitized-input" at api/search.py:44
+```
+
+Real worked output: [`examples/threat-model-migsafe.md`](examples/threat-model-migsafe.md) is the threat-model skill applied to a real CLI, including what the model does *not* cover.
 
 ## The five skills
 
-| Skill | Use it when | What it produces |
-|---|---|---|
-| `threat-model` | a service or feature is being designed or reviewed | data flows, STRIDE threats ranked by reachability, controls |
-| `triage-alert` | a scanner, CVE alert, or bounty report lands | reachability check, severity you verified, a decision |
-| `review-diff-for-vulns` | a PR touches auth, input, paths, SQL, or crypto | findings with exploit paths, plus what was cleared |
-| `cve-research` | someone asks "are we affected by CVE-X" | primary-source ranges, local exposure, remediation |
-| `harden-service` | a service is about to face the internet | surface inventory, control gaps, verified fixes |
+| Skill | Use it when |
+|---|---|
+| `threat-model` | designing or auditing a service, before code review |
+| `triage-alert` | a scanner or SIEM fired and you need a verdict |
+| `review-diff-for-vulns` | a PR touches auth, input parsing, crypto, or file paths |
+| `cve-research` | a dependency CVE lands in your inbox |
+| `harden-service` | shipping anything that listens on a port |
 
-## Example
+## Why it exists
 
-```text
-> use sentinel-skills threat-model on this repo
+Offensive agent skills exist. Defensive ones mostly don't, so agents default to guessing: they invent severity, skip the asset inventory, and call things "safe" after a regex pass. These playbooks force the boring steps that catch real bugs — name the asset, name the attacker, name the control, then decide.
 
-## Scope
-api/ routes (7 entry points), worker/ consumers (2), out of scope: CLI
-## Data flows
-| flow | entry point | trust boundary | validation | store | outbound |
-| upload | POST /api/files (api/files.py:41) | multipart body | validate_upload (api/files.py:12) | S3 | none |
-| search | GET /api/search (api/search.py:9) | query string | none | postgres | none |
-## Threats
-| id | flow | STRIDE | attacker action | preconditions | reachability | evidence |
-| T1 | search | Injection | inject SQL through q= | authenticated | reachable | api/search.py:23 string-concats q into the query |
-## Recommendations
-| threat | control | file | effort |
-| T1 | parameterized query | api/search.py:23 | 10 min |
-```
+Every skill ends in a written artifact you can attach to a PR or an incident. Findings are labelled **"no issues found by ruleset v1"** rather than "safe" — a rule pass is evidence, not proof.
 
-Every finding carries a `file:line`. If the evidence is not there, it is not a finding.
+## How it works
 
-## Why these exist
+Each skill is one folder under `skills/` with a `SKILL.md`:
 
-Generic security checklists produce volume. These five skills enforce the parts that actually decide outcomes:
+- YAML frontmatter (`name`, `description`) so the agent can route on intent
+- `## When to use` / `## Procedure` / `## Rules` / `## Output format`
+- a final verification step, so the agent checks its own artifact before returning
 
-- **Reachability before severity.** A vulnerable dependency nobody imports is not an incident.
-- **Citation or silence.** Every claim names a file and a line.
-- **Labels, not guesses.** Output says "no issues found by ruleset v0.1", never "safe".
-- **Fingerprints, not secrets.** Secrets are reported by SHA-256 prefix, never echoed.
-- **Decision or nothing.** Triage ends in patch, defer, mitigate, or dismiss, with a date.
-
-## Design rules
-
-- Markdown only. No runtime, no dependencies, no network calls.
-- Each skill is self-contained: frontmatter, when to use, numbered procedure with checkable
-  completion criteria, output format, rules, anti-patterns.
-- Skills describe *how to decide*. They never bake in a specific tool vendor.
-
-## Validate locally
-
-```bash
-python3 scripts/validate_skills.py
-```
-
-Checks frontmatter, folder/name agreement, description length, required sections, substance,
-and that `skills.json` matches the folders on disk. CI runs the same script.
+`scripts/validate_skills.py` enforces the parts that silently break discovery: frontmatter parses, folder name matches skill name, description length, required sections, minimum substance, and manifest parity with `skills.json`. CI runs it with `--strict` on every push, so a malformed skill never lands.
 
 ## Contributing
 
-New skills must be defensive, evidence-based, and free of vendor lock-in. See
-[CONTRIBUTING.md](CONTRIBUTING.md). Run the validator before opening a PR.
+Read [CONTRIBUTING.md](CONTRIBUTING.md). Run the checks first:
+
+```bash
+python3 scripts/validate_skills.py --strict
+```
 
 ## License
 
