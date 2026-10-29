@@ -11,7 +11,7 @@
 ## Install
 
 ```bash
-npx skills add mgkvibez/sentinel-skills
+npx skills add mgkvibez/sentinel-skills   # requires Node 22.20 or newer
 ```
 
 ## Three ways to use it
