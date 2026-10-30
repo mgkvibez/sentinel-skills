@@ -6,7 +6,7 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![stars](https://img.shields.io/github/stars/mgkvibez/sentinel-skills?style=flat&color=yellow)](https://github.com/mgkvibez/sentinel-skills/stargazers)
 
-![sentinel-skills demo](docs/demo/sentinel-skills.svg)
+![validating the five skills and reading a real threat model](docs/demo/sentinel-skills.gif)
 
 ## Install
 
